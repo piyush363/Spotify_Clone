@@ -69,53 +69,47 @@ const playMusic = (track, pause = false) => {
 
 async function displayAlbums() {
     console.log("displaying albums")
-    let a = await fetch(`./songs/`)
-    let response = await a.text();
-    let div = document.createElement("div")
-    div.innerHTML = response;
-    let anchors = div.getElementsByTagName("a")
+    
+    // 1. Directly list your exact folder names from your songs directory
+    let albums = [
+        "aashiqui2_songs",
+        "bollywood_songs",
+        "Chill_mood",
+        "Dark_mood",
+        "diljit",
+        "edsheeran",
+        "karan_aujla"
+    ];
+
     let cardContainer = document.querySelector(".cardContainer")
-    let array = Array.from(anchors)
     
     // Clear static container before appending dynamic data
     cardContainer.innerHTML = "";
 
-    for (let index = 0; index < array.length; index++) {
-        const e = array[index]; 
+    // 2. Loop through the list of folders directly
+    for (let index = 0; index < albums.length; index++) {
+        const folder = albums[index];
+        console.log("Processing Album Folder:", folder);
         
-        // Check if the link points to a folder inside songs
-        if (e.href.includes("/songs") && !e.href.includes(".htaccess")) {
-            // Clean up the URL to reliably get the folder name (handles trailing slashes perfectly)
-            let urlPaths = e.href.split("/").filter(path => path !== "");
-            let folder = urlPaths[urlPaths.length - 1];
+        try {
+            // Get the metadata of the folder
+            let infoFetch = await fetch(`./songs/${folder}/info.json`)
+            let response = await infoFetch.json(); 
             
-            // Avoid treating the root "songs" folder itself as an album
-            if (folder === "songs") {
-                continue;
-            }
-
-            console.log("Found Album Folder:", folder);
-            
-            try {
-                // Get the metadata of the folder
-                let infoFetch = await fetch(`./songs/${folder}/info.json`)
-                let response = await infoFetch.json(); 
-                
-                cardContainer.innerHTML = cardContainer.innerHTML + ` <div data-folder="${folder}" class="card">
-                    <div class="play">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 20V4L19 12L5 20Z" stroke="#141B34" fill="#000" stroke-width="1.5"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <img src="/songs/${folder}/cover.jpg" alt="${response.title}">
-                    <h2>${response.title}</h2>
-                    <p>${response.description}</p>
-                </div>`
-            } catch (err) {
-                console.log("Error loading album info for:", folder, err);
-            }
+            cardContainer.innerHTML = cardContainer.innerHTML + ` <div data-folder="${folder}" class="card">
+                <div class="play">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 20V4L19 12L5 20Z" stroke="#141B34" fill="#000" stroke-width="1.5"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <img src="./songs/${folder}/cover.jpg" alt="${response.title}">
+                <h2>${response.title}</h2>
+                <p>${response.description}</p>
+            </div>`
+        } catch (err) {
+            console.log("Error loading album info for:", folder, err);
         }
     }
 
@@ -128,16 +122,6 @@ async function displayAlbums() {
         })
     })
 }
-
-    // Load the playlist whenever card is clicked
-    Array.from(document.getElementsByClassName("card")).forEach(e => { 
-        e.addEventListener("click", async item => {
-            console.log("Fetching Songs")
-            songs = await getSongs(`songs/${item.currentTarget.dataset.folder}`)  
-            playMusic(songs[0])
-        })
-    })
-
 
 async function main() {
     // 1. Get initial default list of songs 
