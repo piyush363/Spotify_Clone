@@ -330,7 +330,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
     overflow-y: auto;
-    max-height: 52vh;
+    max-height: 60vh;
     padding-bottom: 120px; /* Space for fixed playbar */
 }
 
@@ -596,11 +596,17 @@ body {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 16px;
         padding-bottom: 200px;
+        max-height: 57vh;
     }
 
     .playbar {
         width: calc(100vw - 24px);
         max-width: none;
+        bottom: 16px;
+        left: 49%;
+        max-height: 116px
+   
+    
     }
 
     .abovebar {
@@ -636,6 +642,7 @@ body {
     .cardContainer {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
+        max-height: 60vh;
     }
 
     .buttons {
@@ -649,5 +656,12 @@ body {
 
     .signupbtn {
         font-size: 14px;
+    }
+
+    .playbar{
+         
+         bottom: 20px;
+    left: 49%;
+   
     }
 }
