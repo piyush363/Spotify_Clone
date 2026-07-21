@@ -22,7 +22,7 @@ async function getSongs(folder) {
 
   try {
     // Fetch the explicit list of songs from your new JSON file
-    let a = await fetch(`./${folder}/songs.json`);
+    let a = await fetch(`./${folder}/info.json`);
     songs = await a.json();
   } catch (error) {
     console.error(
@@ -68,7 +68,7 @@ async function getSongs(folder) {
 }
 const playMusic = (track, pause = false) => {
   // Changed the leading '/' to '.' to make it relative to the deployment folder
-  currentSong.src = `./${currFolder}/` + track;
+  currentSong.src = `/songs/${currFolder}/` + track;
 
   if (!pause && track) {
     currentSong.play();
