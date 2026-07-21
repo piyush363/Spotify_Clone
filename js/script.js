@@ -22,7 +22,7 @@ async function getSongs(folder) {
 
   try {
     // Fetch the explicit list of songs from your new JSON file
-    let a = await fetch(`songs/${folder}/info.json`);
+    let a = await fetch(`songs/${folder}/songs.json`);
     songs = await a.json();
   } catch (error) {
     console.error(
