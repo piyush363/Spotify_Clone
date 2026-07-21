@@ -1,4 +1,4 @@
-
+console.log("Lets write JavaScript");
 let currentSong = new Audio();
 let songs = [];
 let currFolder = "";
@@ -18,6 +18,7 @@ function secondsToMinutesSeconds(seconds) {
 }
 
 async function getSongs(folderName) {
+  // Always update currFolder FIRST so playMusic knows where to look
   currFolder = folderName;
 
   try {
@@ -60,26 +61,32 @@ async function getSongs(folderName) {
 const playMusic = async (track, pause = false) => {
   if (!track) return;
 
-  // Stop current song playing before changing source
-  currentSong.pause();
+  try {
+    // 1. Pause and completely reset current audio element stream
+    currentSong.pause();
+    currentSong.currentTime = 0;
 
-  // Reset audio source to new song URL
-  currentSong.src = `/songs/${currFolder}/` + track;
-  currentSong.load(); // Force reload audio buffer
+    // 2. Set new URL and force the browser to reload audio buffer
+    currentSong.src = `/songs/${currFolder}/` + track;
+    currentSong.load();
 
-  let cleanDisplayName = decodeURIComponent(track).replace(".mp3", "");
-  document.querySelector(".songinfo").innerHTML = cleanDisplayName;
-  document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
+    // 3. Update the UI text
+    let cleanDisplayName = decodeURIComponent(track).replace(".mp3", "");
+    document.querySelector(".songinfo").innerHTML = cleanDisplayName;
+    document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
 
-  if (!pause) {
-    try {
-      await currentSong.play();
-      play.src = "img/pause.svg";
-    } catch (err) {
-      console.error("Playback failed:", err);
+    // 4. Play the track safely with async handling
+    if (!pause) {
+      let playPromise = currentSong.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+        play.src = "img/pause.svg";
+      }
+    } else {
       play.src = "img/play.svg";
     }
-  } else {
+  } catch (err) {
+    console.error("Playback error when switching track:", err);
     play.src = "img/play.svg";
   }
 };
@@ -128,16 +135,18 @@ async function displayAlbums() {
   Array.from(document.getElementsByClassName("card")).forEach((e) => {
     e.addEventListener("click", async (item) => {
       const folder = item.currentTarget.dataset.folder;
+      
+      // Fetch songs for new folder & play first song cleanly
       let fetchedSongs = await getSongs(folder);
       if (fetchedSongs && fetchedSongs.length > 0) {
-        playMusic(fetchedSongs[0]); // Auto-plays first song of clicked album
+        await playMusic(fetchedSongs[0]);
       }
     });
   });
 }
 
 async function main() {
-  // Load default album
+  // Load default album on start
   await getSongs("diljit");
   if (songs.length > 0) {
     playMusic(songs[0], true); // Load first song paused
